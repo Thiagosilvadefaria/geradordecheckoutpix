@@ -4,18 +4,14 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') { return res.status(200).end(); }
-  if (req.method !== 'POST') { return res.status(405).json({ error: 'Metodo nao permitido' }); }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Metodo nao permitido' });
 
   try {
     const dados = req.body;
-    if (!dados || !dados.chave) {
-      return res.status(400).json({ error: 'Chave pix obrigatoria' });
-    }
+    if (!dados || !dados.chave) return res.status(400).json({ error: 'Chave pix obrigatoria' });
 
     const id = crypto.randomBytes(6).toString('hex');
-
     const payload = JSON.stringify({
       chave:  dados.chave,
       marca:  dados.marca  || 'Nome do hospede',
@@ -36,32 +32,23 @@ module.exports = async (req, res) => {
       }
     });
 
-    const UPSTASH_URL   = process.env.KV_REST_API_URL;
-    const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN;
+    const URL   = process.env.KV_REST_API_URL;
+    const TOKEN = process.env.KV_REST_API_TOKEN;
 
-    if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-      return res.status(500).json({ error: 'Variaveis de ambiente nao configuradas', vars: Object.keys(process.env).filter(k => k.startsWith('KV')) });
-    }
-
-    const upstashRes = await fetch(`${UPSTASH_URL}/set/co:${id}`, {
+    // Upstash REST: POST /pipeline
+    const r = await fetch(`${URL}/pipeline`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${UPSTASH_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify([payload, 'EX', '604800'])
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['SET', `co:${id}`, payload, 'EX', 604800]
+      ])
     });
 
-    const upstashJson = await upstashRes.json();
-
-    if (upstashJson.error) {
-      return res.status(500).json({ error: 'Upstash erro: ' + upstashJson.error });
-    }
+    const rj = await r.json();
+    if (!r.ok) return res.status(500).json({ error: JSON.stringify(rj) });
 
     const host = req.headers.host || 'geradordecheckoutpix.vercel.app';
-    const link = `https://${host}/checkout.html?id=${id}`;
-
-    return res.status(200).json({ link, id });
+    return res.status(200).json({ link: `https://${host}/checkout.html?id=${id}`, id });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });

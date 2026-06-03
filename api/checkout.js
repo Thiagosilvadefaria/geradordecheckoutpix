@@ -1,32 +1,27 @@
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Metodo nao permitido' });
-  }
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Metodo nao permitido' });
 
   const { id } = req.query;
-  if (!id) { return res.status(400).json({ error: 'ID obrigatorio' }); }
+  if (!id) return res.status(400).json({ error: 'ID obrigatorio' });
 
   try {
-    const UPSTASH_URL   = process.env.KV_REST_API_URL;
-    const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN;
+    const URL   = process.env.KV_REST_API_URL;
+    const TOKEN = process.env.KV_REST_API_TOKEN;
 
-    if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-      return res.status(500).json({ error: 'Variaveis nao configuradas' });
-    }
-
-    const r = await fetch(`${UPSTASH_URL}/get/co:${id}`, {
-      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    const r = await fetch(`${URL}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['GET', `co:${id}`]
+      ])
     });
 
-    const json = await r.json();
+    const rj = await r.json();
+    const result = rj[0]?.result;
+    if (!result) return res.status(404).json({ error: 'Link nao encontrado ou expirado' });
 
-    if (!json.result) {
-      return res.status(404).json({ error: 'Link nao encontrado ou expirado' });
-    }
-
-    const dados = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+    const dados = typeof result === 'string' ? JSON.parse(result) : result;
     return res.status(200).json(dados);
 
   } catch (err) {
