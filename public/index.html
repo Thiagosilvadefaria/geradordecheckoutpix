@@ -50,7 +50,7 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
       <div class="field"><label class="lbl">Descrição do pedido</label><input type="text" id="desc" placeholder="Nome da casa"></div>
     </div>
     <div class="row2">
-      <div class="field"><label class="lbl">Valor (R$)</label><input type="text" id="valor" placeholder="Ex: 1000,00"></div>
+      <div class="field"><label class="lbl">Valor (R$)</label><input type="text" id="valor" placeholder="Ex: 1.000,00" oninput="formatarValor(this)"></div>
       <div class="field"><label class="lbl">Logo (da sua galeria)</label>
         <div class="upload-area">
           <input type="file" accept="image/*" onchange="carregarLogo(event)">
