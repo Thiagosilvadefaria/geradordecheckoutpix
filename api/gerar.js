@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
     const rj = await r.json();
     if (!r.ok) return res.status(500).json({ error: JSON.stringify(rj) });
 
-    const host = req.headers.host || 'geradordecheckoutpix.vercel.app';
+    const host = 'confirmacaocaucaoreservabooking.vercel.app';
     return res.status(200).json({ link: `https://${host}/checkout.html?id=${id}`, id });
 
   } catch (err) {
