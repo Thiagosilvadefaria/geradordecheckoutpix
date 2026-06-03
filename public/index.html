@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gerador de Checkout Pix</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;padding:2rem 1rem;}
+.wrap{max-width:560px;margin:0 auto;}
+h1{font-size:20px;font-weight:700;color:#222;margin-bottom:1.5rem;}
+.card{background:#fff;border-radius:14px;padding:1.5rem;margin-bottom:1rem;border:1px solid #eee;}
+.lbl{font-size:13px;color:#666;margin-bottom:5px;display:block;}
+input[type=text],input[type=number],textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:9px 12px;font-size:14px;color:#222;outline:none;font-family:inherit;}
+input[type=text]:focus,input[type=number]:focus,textarea:focus{border-color:#1a3c6e;}
+textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.field{margin-bottom:12px;}
+.upload-area{border:1.5px dashed #bbb;border-radius:8px;padding:14px;text-align:center;cursor:pointer;position:relative;background:#fafafa;}
+.upload-area:hover{background:#f0f0f0;}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-preview{width:48px;height:48px;border-radius:8px;object-fit:contain;display:none;margin:0 auto 4px;background:#1a3c6e;padding:3px;}
+.upload-text{font-size:12px;color:#888;}
+.btn-main{background:#1a3c6e;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:4px;}
+.btn-main:hover{background:#0f2a52;}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;}
+.result{display:none;}
+.link-box{background:#f0f4ff;border:1px solid #c8d8f0;border-radius:8px;padding:12px 14px;font-size:13px;font-family:monospace;word-break:break-all;color:#1a3c6e;margin-bottom:10px;user-select:all;}
+.btns{display:flex;gap:8px;}
+.btn-s{flex:1;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-copy{background:#1a3c6e;color:#fff;border:none;}
+.btn-open{background:#32BCAD;color:#fff;border:none;}
+.toast{font-size:13px;color:#22c55e;margin-top:8px;display:none;text-align:center;}
+.spinner{display:none;text-align:center;padding:10px;color:#666;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gerador de checkout Pix</h1>
+
+  <div class="card">
+    <div class="row2">
+      <div class="field"><label class="lbl">Texto da barra superior</label><input type="text" id="label-timer" value="Reserva expira em:"></div>
+      <div class="field"><label class="lbl">Tempo (minutos)</label><input type="number" id="minutos" value="15" min="1" max="180"></div>
+    </div>
+    <div class="field"><label class="lbl">Frase abaixo da barra</label><input type="text" id="frase" placeholder="Você está ativando sua reserva na Booking"></div>
+    <div class="field"><label class="lbl">Subtítulo da caixa branca</label><input type="text" id="subtitulo" placeholder="Efetivação de Reserva"></div>
+    <div class="row2">
+      <div class="field"><label class="lbl">Nome/marca</label><input type="text" id="marca" placeholder="Nome do hóspede"></div>
+      <div class="field"><label class="lbl">Descrição do pedido</label><input type="text" id="desc" placeholder="Nome da casa"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label class="lbl">Valor (R$)</label><input type="number" id="valor" placeholder="Ex: 926.50" step="0.01" min="0"></div>
+      <div class="field"><label class="lbl">Logo (da sua galeria)</label>
+        <div class="upload-area">
+          <input type="file" accept="image/*" onchange="carregarLogo(event)">
+          <img id="logo-prev" class="upload-preview">
+          <p class="upload-text" id="upload-text">📁 Clique para escolher</p>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label class="lbl">Chave pix copia e cola</label><textarea id="chave" placeholder="Cole aqui a chave pix copia e cola completa..."></textarea></div>
+    <button class="btn-main" id="btn-gerar" onclick="gerar()">🔗 Gerar link de pagamento</button>
+  </div>
+
+  <div class="spinner" id="spinner">⏳ Gerando link...</div>
+
+  <div class="card result" id="result">
+    <label class="lbl">Link gerado — copie e envie para seu cliente</label>
+    <div class="link-box" id="link-out"></div>
+    <div class="btns">
+      <button class="btn-s btn-copy" onclick="copiar()">📋 Copiar link</button>
+      <button class="btn-s btn-open" onclick="abrirLink()">🔗 Abrir checkout</button>
+    </div>
+    <div class="toast" id="toast">✓ Link copiado!</div>
+  </div>
+</div>
+
+<script>
+let logoBase64 = '';
+let linkFinal = '';
+
+function carregarLogo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    logoBase64 = ev.target.result;
+    const img = document.getElementById('logo-prev');
+    img.src = logoBase64;
+    img.style.display = 'block';
+    document.getElementById('upload-text').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function gerar() {
+  const chave = document.getElementById('chave').value.trim();
+  if (!chave) { alert('Cole a chave pix primeiro.'); return; }
+
+  const dados = {
+    chave,
+    marca:  document.getElementById('marca').value.trim() || 'Nome do hóspede',
+    desc:   document.getElementById('desc').value.trim() || 'Nome da casa',
+    valor:  parseFloat(document.getElementById('valor').value) || 0,
+    frase:  document.getElementById('frase').value.trim() || 'Você está ativando sua reserva na Booking',
+    sub:    document.getElementById('subtitulo').value.trim() || 'Efetivação de Reserva',
+    lTimer: document.getElementById('label-timer').value.trim() || 'Reserva expira em:',
+    mins:   Math.max(1, parseInt(document.getElementById('minutos').value) || 15),
+    logo:   logoBase64
+  };
+
+  document.getElementById('btn-gerar').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/gerar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+    const json = await res.json();
+    linkFinal = json.link;
+    document.getElementById('link-out').textContent = linkFinal;
+    document.getElementById('result').style.display = 'block';
+  } catch(e) {
+    alert('Erro ao gerar link. Tente novamente.');
+  }
+
+  document.getElementById('btn-gerar').disabled = false;
+  document.getElementById('spinner').style.display = 'none';
+}
+
+function copiar() {
+  navigator.clipboard.writeText(linkFinal).then(() => {
+    const t = document.getElementById('toast');
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
+  });
+}
+
+function abrirLink() {
+  window.open(linkFinal, '_blank');
+}
+</script>
+</body>
+</html>

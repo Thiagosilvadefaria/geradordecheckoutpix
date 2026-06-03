@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pagamento Pix</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1e40af;min-height:100vh;}
+.topbar{background:#1a3580;padding:13px 1rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}
+.page{max-width:960px;margin:0 auto;padding:0 1rem;}
+.header-card{background:#fff;border-radius:14px;margin:1.25rem 0;overflow:hidden;}
+.sub-line{padding:1rem 1.5rem;border-bottom:1px solid #eee;}
+.header-body{display:flex;align-items:center;gap:1rem;padding:1.25rem 1.5rem;}
+.logo-initial{width:72px;height:72px;border-radius:12px;background:#1a3c6e;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;flex-shrink:0;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+@media(max-width:620px){.grid{grid-template-columns:1fr;}}
+.panel{background:#fff;border-radius:14px;padding:1.5rem;}
+.panel-title{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #eee;}
+.step-num{width:30px;height:30px;border-radius:50%;background:#1a3c6e;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.panel-title span{font-size:16px;font-weight:700;color:#222;}
+.ifield{margin-bottom:13px;}
+.ifield label{display:block;font-size:13px;color:#666;margin-bottom:4px;}
+.ifield input{width:100%;border:1px solid #ddd;border-radius:8px;padding:9px 12px;font-size:14px;color:#222;outline:none;}
+.ifield input:focus{border-color:#1a3c6e;}
+.pix-card{border:1.5px solid #c8d8f0;border-radius:10px;padding:16px;text-align:center;margin-bottom:1.25rem;background:#eef2ff;display:flex;align-items:center;justify-content:center;min-height:90px;}
+.feat{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.feat-icon{color:#32BCAD;font-size:13px;font-weight:800;min-width:20px;margin-top:1px;}
+.feat-title{font-size:12px;font-weight:800;color:#32BCAD;margin-bottom:2px;}
+.feat-desc{font-size:11px;color:#777;}
+.divider{border:none;border-top:1px solid #eee;margin:1rem 0;}
+.resumo-title{font-size:14px;font-weight:700;color:#222;text-align:center;margin-bottom:10px;}
+.resumo-row{display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:7px;}
+.resumo-total{display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#222;margin-top:8px;padding-top:10px;border-top:1px solid #eee;}
+.chave-box{background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-family:monospace;font-size:11px;word-break:break-all;color:#333;margin:1rem 0;line-height:1.6;display:none;}
+.btn-fin{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:1rem;}
+.btn-fin:hover{background:#0f2a52;}
+.btn-pix{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;display:none;}
+.btn-pix.ok{background:#155a9a;}
+.expired{display:none;background:#fee2e2;color:#991b1b;text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:13px;margin-top:10px;}
+.footer{background:#1a3580;padding:2rem 1rem;text-align:center;margin-top:1.5rem;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span id="label-timer-el" style="color:#fff;font-size:15px;font-weight:600;"></span>
+  <span id="timer" style="font-size:22px;font-weight:900;letter-spacing:2px;color:#fff;"></span>
+</div>
+
+<div class="page">
+  <div style="text-align:center;padding:16px 1rem 6px;">
+    <span id="frase-el" style="color:#fff;font-size:16px;font-weight:700;"></span>
+  </div>
+  <div class="header-card">
+    <div class="sub-line">
+      <span id="sub-el" style="color:#1a3c6e;font-size:14px;font-weight:700;"></span>
+    </div>
+    <div class="header-body">
+      <div id="logo-el"></div>
+      <div>
+        <div id="desc-el" style="font-size:15px;color:#222;font-weight:600;margin-bottom:4px;"></div>
+        <div id="valor-el" style="color:#1a3c6e;font-size:18px;font-weight:700;display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title"><div class="step-num">1</div><span>Identificação</span></div>
+      <div class="ifield"><label>Nome Completo</label><input type="text" placeholder="Nome e Sobrenome"></div>
+      <div class="ifield"><label>E-mail</label><input type="email" placeholder="email@email.com"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><div class="step-num">2</div><span>Pagamento</span></div>
+      <div class="pix-card">
+        <img src="/logo-pix-significa.png" style="height:56px;object-fit:contain;" alt="Pix">
+      </div>
+      <div class="feat"><div class="feat-icon">⏱</div><div><div class="feat-title">IMEDIATO</div><div class="feat-desc">Após copiar a chave, o pagamento é confirmado na hora.</div></div></div>
+      <div class="feat"><div class="feat-icon">⬡</div><div><div class="feat-title">PAGAMENTO SIMPLES</div><div class="feat-desc">Cole a chave no app bancário em Pix Copia e Cola.</div></div></div>
+      <div class="feat"><div class="feat-icon">✓</div><div><div class="feat-title">100% SEGURO</div><div class="feat-desc">Transações seguras com criptografia de ponta a ponta.</div></div></div>
+      <div id="resumo-bloco"></div>
+      <div class="chave-box" id="chave-box"></div>
+      <button class="btn-fin" id="btn-fin" onclick="mostrarChave()">Finalizar e Gerar Pix</button>
+      <button class="btn-pix" id="btn-pix" onclick="copiarChave()">Copiar chave Pix</button>
+      <div class="expired" id="expired">⏱ Tempo expirado. Solicite um novo link.</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer" id="footer-el"></div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) { document.body.innerHTML = '<p style="color:#fff;text-align:center;padding:2rem;">Link inválido.</p>'; return; }
+
+  fetch('/api/checkout?id=' + id)
+    .then(r => r.json())
+    .then(d => {
+      document.title = d.desc + ' — ' + d.marca;
+
+      document.getElementById('label-timer-el').textContent = d.lTimer;
+      document.getElementById('frase-el').textContent = d.frase;
+      document.getElementById('sub-el').textContent = d.sub;
+      document.getElementById('desc-el').textContent = d.desc;
+      document.getElementById('chave-box').textContent = d.chave;
+
+      if (d.valor > 0) {
+        const vFmt = 'R$ ' + d.valor.toFixed(2).replace('.', ',');
+        const vel = document.getElementById('valor-el');
+        vel.textContent = vFmt;
+        vel.style.display = 'block';
+        document.getElementById('resumo-bloco').innerHTML =
+          '<hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">' +
+          '<div style="font-size:14px;font-weight:700;color:#222;text-align:center;margin-bottom:10px;">Resumo do Pedido</div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:7px;"><span>' + d.desc + '</span><span>' + vFmt + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:7px;"><span>Subtotal</span><span>' + vFmt + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#222;margin-top:8px;padding-top:10px;border-top:1px solid #eee;"><span>Total</span><span>' + vFmt + '</span></div>';
+      }
+
+      if (d.logo) {
+        document.getElementById('logo-el').innerHTML = '<img src="' + d.logo + '" style="width:72px;height:72px;object-fit:contain;border-radius:12px;background:#1a3c6e;padding:6px;">';
+      } else {
+        document.getElementById('logo-el').innerHTML = '<div class="logo-initial">' + d.marca.charAt(0).toUpperCase() + '</div>';
+      }
+
+      if (d.rodape) {
+        document.getElementById('footer-el').innerHTML =
+          '<div style="color:#fff;font-size:15px;font-weight:700;margin-bottom:6px;">' + d.rodape.nome + '</div>' +
+          '<div style="color:#a0b4d0;font-size:13px;margin-bottom:14px;">' + d.rodape.slogan + '</div>' +
+          (d.rodape.tel ? '<div style="color:#c8d8f0;font-size:13px;margin-bottom:6px;">📞 Telefone: ' + d.rodape.tel + '</div>' : '') +
+          (d.rodape.sac ? '<div style="color:#c8d8f0;font-size:13px;margin-bottom:6px;">📞 SAC: ' + d.rodape.sac + '</div>' : '') +
+          (d.rodape.email ? '<div style="color:#c8d8f0;font-size:13px;margin-bottom:14px;">✉ E-mail: ' + d.rodape.email + '</div>' : '') +
+          '<div style="color:#7a90a8;font-size:12px;margin-bottom:4px;">' + d.rodape.copy + '</div>' +
+          '<div style="color:#7a90a8;font-size:12px;">Este é um e-mail de segurança do sistema.</div>';
+      }
+
+      // Timer
+      let s = d.mins * 60;
+      const el = document.getElementById('timer');
+      const fmt = n => String(Math.floor(n/60)).padStart(2,'0') + ':' + String(n%60).padStart(2,'0');
+      el.textContent = fmt(s);
+      const iv = setInterval(() => {
+        s--;
+        el.textContent = fmt(s);
+        if (s <= 60) el.style.color = '#fca5a5';
+        if (s <= 0) {
+          clearInterval(iv);
+          el.textContent = '00:00';
+          const bf = document.getElementById('btn-fin');
+          bf.disabled = true; bf.style.opacity = '0.4'; bf.style.cursor = 'not-allowed';
+          document.getElementById('expired').style.display = 'block';
+        }
+      }, 1000);
+    })
+    .catch(() => { document.body.innerHTML = '<p style="color:#fff;text-align:center;padding:2rem;">Link expirado ou inválido.</p>'; });
+
+  window.mostrarChave = function() {
+    document.getElementById('chave-box').style.display = 'block';
+    document.getElementById('btn-pix').style.display = 'block';
+    document.getElementById('btn-fin').style.display = 'none';
+  };
+  window.copiarChave = function() {
+    navigator.clipboard.writeText(document.getElementById('chave-box').textContent.trim()).then(() => {
+      const b = document.getElementById('btn-pix');
+      b.classList.add('ok'); b.textContent = '✓ Chave copiada!';
+      setTimeout(() => { b.classList.remove('ok'); b.textContent = 'Copiar chave Pix'; }, 3000);
+    });
+  };
+})();
+</script>
+</body>
+</html>
