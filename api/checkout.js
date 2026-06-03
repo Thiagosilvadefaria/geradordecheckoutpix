@@ -7,11 +7,11 @@ module.exports = async (req, res) => {
   if (!id) { return res.status(400).json({ error: 'ID obrigatório' }); }
 
   try {
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
+    const apiUrl = process.env.KV_REST_API_URL || process.env.URL_KV;
+    const apiToken = process.env.KV_REST_API_TOKEN;
 
-    const r = await fetch(`${url}/get/checkout:${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
+    const r = await fetch(`${apiUrl}/get/checkout:${id}`, {
+      headers: { Authorization: `Bearer ${apiToken}` }
     });
 
     const json = await r.json();

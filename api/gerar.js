@@ -33,14 +33,23 @@ module.exports = async (req, res) => {
       }
     };
 
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
+    // Upstash REST API - usa KV_REST_API_URL ou URL_KV
+    const apiUrl = process.env.KV_REST_API_URL || process.env.URL_KV;
+    const apiToken = process.env.KV_REST_API_TOKEN;
 
-    await fetch(`${url}/set/checkout:${id}`, {
+    const r = await fetch(`${apiUrl}/set/checkout:${id}/ex/604800`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: JSON.stringify(payload), ex: 604800 })
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(JSON.stringify(payload))
     });
+
+    const rJson = await r.json();
+    if (!r.ok) {
+      return res.status(500).json({ error: 'Erro ao salvar: ' + JSON.stringify(rJson) });
+    }
 
     const host = req.headers.host || 'geradordecheckoutpix.vercel.app';
     const link = `https://${host}/checkout.html?id=${id}`;
