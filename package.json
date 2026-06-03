@@ -1,8 +1,5 @@
 {
   "name": "checkout-pix",
   "version": "1.0.0",
-  "description": "Gerador de checkout Pix",
-  "dependencies": {
-    "@vercel/kv": "^1.0.0"
-  }
+  "description": "Gerador de checkout Pix"
 }

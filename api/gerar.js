@@ -1,7 +1,3 @@
-// api/gerar.js — Serverless function (Vercel)
-// Salva os dados do checkout e retorna um link curto
-
-const { kv } = require('@vercel/kv');
 const crypto = require('crypto');
 
 module.exports = async (req, res) => {
@@ -37,15 +33,21 @@ module.exports = async (req, res) => {
       }
     };
 
-    // Salva por 7 dias (604800 segundos)
-    await kv.set('checkout:' + id, JSON.stringify(payload), { ex: 604800 });
+    const url = process.env.KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN;
 
-    const host = req.headers.host || 'checkout-pix.vercel.app';
+    await fetch(`${url}/set/checkout:${id}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: JSON.stringify(payload), ex: 604800 })
+    });
+
+    const host = req.headers.host || 'geradordecheckoutpix.vercel.app';
     const link = `https://${host}/checkout.html?id=${id}`;
 
     return res.status(200).json({ link, id });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Erro interno' });
+    return res.status(500).json({ error: 'Erro interno: ' + err.message });
   }
 };
