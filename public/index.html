@@ -102,7 +102,7 @@ async function gerar() {
     chave,
     marca:  document.getElementById('marca').value.trim() || 'Nome do hóspede',
     desc:   document.getElementById('desc').value.trim() || 'Nome da casa',
-    valor:  parseFloat((document.getElementById('valor').value || '0').replace(/\./g, '').replace(',', '.')) || 0,
+    valor:  (function(){ var v = document.getElementById('valor').value.trim().replace(/\./g,'').replace(',','.'); return parseFloat(v) || 0; })(),
     frase:  document.getElementById('frase').value.trim() || 'Você está ativando sua reserva na Booking',
     sub:    document.getElementById('subtitulo').value.trim() || 'Efetivação de Reserva',
     lTimer: document.getElementById('label-timer').value.trim() || 'Reserva expira em:',
@@ -142,6 +142,15 @@ function copiar() {
 
 function abrirLink() {
   window.open(linkFinal, '_blank');
+}
+
+function formatarValor(input) {
+  var v = input.value.replace(/\D/g, '');
+  if (!v) { input.value = ''; return; }
+  v = (parseInt(v, 10) / 100).toFixed(2);
+  v = v.replace('.', ',');
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = v;
 }
 </script>
 </body>
