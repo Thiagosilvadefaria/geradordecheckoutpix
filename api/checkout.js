@@ -1,26 +1,35 @@
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  if (req.method !== 'GET') { return res.status(405).json({ error: 'Método não permitido' }); }
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Metodo nao permitido' });
+  }
 
   const { id } = req.query;
-  if (!id) { return res.status(400).json({ error: 'ID obrigatório' }); }
+  if (!id) { return res.status(400).json({ error: 'ID obrigatorio' }); }
 
   try {
-    const apiUrl = process.env.KV_REST_API_URL || process.env.URL_KV;
-    const apiToken = process.env.KV_REST_API_TOKEN;
+    const UPSTASH_URL   = process.env.KV_REST_API_URL;
+    const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN;
 
-    const r = await fetch(`${apiUrl}/get/checkout:${id}`, {
-      headers: { Authorization: `Bearer ${apiToken}` }
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+      return res.status(500).json({ error: 'Variaveis nao configuradas' });
+    }
+
+    const r = await fetch(`${UPSTASH_URL}/get/co:${id}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
     });
 
     const json = await r.json();
-    if (!json.result) { return res.status(404).json({ error: 'Link não encontrado ou expirado' }); }
+
+    if (!json.result) {
+      return res.status(404).json({ error: 'Link nao encontrado ou expirado' });
+    }
 
     const dados = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
     return res.status(200).json(dados);
+
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Erro interno: ' + err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
