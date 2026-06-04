@@ -42,6 +42,8 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 #login-btn{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
 #login-btn:hover{background:#0f2a52;}
 #login-erro{color:#e24b4a;font-size:13px;margin-top:10px;display:none;}
+#btn-sair{position:fixed;top:12px;right:16px;background:#e24b4a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;z-index:999;display:none;}
+#btn-sair:hover{background:#c0392b;}
 </style>
 </head>
 <body>
@@ -56,6 +58,7 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
     <div id="login-erro">Usuário ou senha incorretos.</div>
   </div>
 </div>
+<button id="btn-sair" onclick="sair()">Sair</button>
 <div class="wrap">
   <h1>Gerador de checkout Pix</h1>
 
@@ -179,13 +182,16 @@ function formatarValor(input) {
   var PASS = 'Bin1laden02111984';
   if(sessionStorage.getItem('logado') === '1'){
     document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('btn-sair').style.display = 'block';
   }
+  window.sair = function(){ sessionStorage.removeItem('logado'); location.reload(); };
   window.fazerLogin = function(){
     var u = document.getElementById('login-user').value.trim();
     var p = document.getElementById('login-pass').value;
     if(u === USER && p === PASS){
       sessionStorage.setItem('logado','1');
       document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('btn-sair').style.display = 'block';
     } else {
       document.getElementById('login-erro').style.display = 'block';
     }
