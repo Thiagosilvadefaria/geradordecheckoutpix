@@ -31,6 +31,9 @@ module.exports = async (req, res) => {
       lTimer: dados.lTimer || 'Reserva expira em:',
       mins:   dados.mins   || 15,
       logo:   dados.logo   || '',
+      logoTopo: dados.logoTopo || '',
+      corFundo: dados.corFundo || '#1e40af',
+      corBarra: dados.corBarra || '#1a3580',
       rodape: {
         nome:   'Booking.com',
         slogan: 'Sua seguranca e o nosso compromisso',

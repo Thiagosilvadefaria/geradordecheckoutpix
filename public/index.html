@@ -83,7 +83,33 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
         </div>
       </div>
     </div>
-    <div class="field"><label class="lbl">Chave pix copia e cola</label><textarea id="chave" placeholder="Cole aqui a chave pix copia e cola completa..."></textarea></div>
+    <div class="field">
+  <label class="lbl">Logo do topo (substitui o Booking)</label>
+  <div class="upload-area">
+    <input type="file" accept="image/*" onchange="carregarLogoTopo(event)">
+    <img id="logo-topo-prev" class="upload-preview">
+    <p class="upload-text" id="upload-topo-text">📁 Clique para escolher</p>
+  </div>
+</div>
+
+<div class="row2">
+  <div class="field">
+    <label class="lbl">Cor do fundo</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="color" id="cor-fundo" value="#1e40af" style="width:48px;height:38px;border:1px solid #ddd;border-radius:8px;cursor:pointer;padding:2px;">
+      <input type="text" id="cor-fundo-hex" value="#1e40af" style="flex:1;" oninput="document.getElementById('cor-fundo').value=this.value">
+    </div>
+  </div>
+  <div class="field">
+    <label class="lbl">Cor da barra superior</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="color" id="cor-barra" value="#1a3580" style="width:48px;height:38px;border:1px solid #ddd;border-radius:8px;cursor:pointer;padding:2px;">
+      <input type="text" id="cor-barra-hex" value="#1a3580" style="flex:1;" oninput="document.getElementById('cor-barra').value=this.value">
+    </div>
+  </div>
+</div>
+
+<div class="field"><label class="lbl">Chave pix copia e cola</label><textarea id="chave" placeholder="Cole aqui a chave pix copia e cola completa..."></textarea></div>
     <button class="btn-main" id="btn-gerar" onclick="gerar()">🔗 Gerar link de pagamento</button>
   </div>
 
@@ -102,6 +128,32 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 
 <script>
 let logoBase64 = '';
+let logoTopoBase64 = '';
+
+function carregarLogoTopo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const imgEl = new Image();
+    imgEl.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 200;
+      let w = imgEl.width, h = imgEl.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+      logoTopoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      const prev = document.getElementById('logo-topo-prev');
+      prev.src = logoTopoBase64;
+      prev.style.display = 'block';
+      document.getElementById('upload-topo-text').textContent = file.name;
+    };
+    imgEl.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 let linkFinal = '';
 
 function carregarLogo(e) {
@@ -178,6 +230,9 @@ function copiar() {
 function abrirLink() {
   window.open(linkFinal, '_blank');
 }
+
+document.getElementById('cor-fundo').addEventListener('input', function(){ document.getElementById('cor-fundo-hex').value = this.value; });
+document.getElementById('cor-barra').addEventListener('input', function(){ document.getElementById('cor-barra-hex').value = this.value; });
 
 function formatarValor(input) {
   var v = input.value.replace(/\D/g, '');

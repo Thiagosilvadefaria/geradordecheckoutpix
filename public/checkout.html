@@ -6,8 +6,8 @@
 <title>Pagamento Pix</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1e40af;min-height:100vh;}
-.topbar{background:#1a3580;padding:13px 1rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cor-fundo,#1e40af);min-height:100vh;}
+.topbar{background:var(--cor-barra,#1a3580);padding:13px 1rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}
 .page{max-width:960px;margin:0 auto;padding:0 1rem;}
 .header-card{background:#fff;border-radius:14px;margin:1.25rem 0;overflow:hidden;}
 .sub-line{padding:1rem 1.5rem;border-bottom:1px solid #eee;}
@@ -38,7 +38,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-pix{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;display:none;}
 .btn-pix.ok{background:#155a9a;}
 .expired{display:none;background:#fee2e2;color:#991b1b;text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:13px;margin-top:10px;}
-.footer{background:#1a3580;padding:2rem 1rem;text-align:center;margin-top:1.5rem;}
+.footer{background:var(--cor-barra,#1a3580);padding:2rem 1rem;text-align:center;margin-top:1.5rem;}
 </style>
 </head>
 <body>
@@ -48,7 +48,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="page">
-  <div style="text-align:center;padding:16px 1rem 4px;"><img src="/logo-booking.png" style="width:80px;height:80px;border-radius:12px;object-fit:cover;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></div><div style="text-align:center;padding:0 1rem 6px;">
+  <div style="text-align:center;padding:16px 1rem 4px;" id="logo-topo-el"><img src="/logo-booking.png" style="width:80px;height:80px;border-radius:12px;object-fit:cover;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"></div><div style="text-align:center;padding:0 1rem 6px;">
     <span id="frase-el" style="color:#fff;font-size:16px;font-weight:700;"></span>
   </div>
   <div class="header-card">
@@ -99,6 +99,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     .then(r => r.json())
     .then(d => {
       document.title = d.desc + ' — ' + d.marca;
+
+      // Aplicar cores dinâmicas
+      if (d.corFundo) document.documentElement.style.setProperty('--cor-fundo', d.corFundo);
+      if (d.corBarra) document.documentElement.style.setProperty('--cor-barra', d.corBarra);
+
+      // Logo do topo
+      if (d.logoTopo) {
+        document.getElementById('logo-topo-el').innerHTML = '<img src="' + d.logoTopo + '" style="width:70px;height:70px;object-fit:contain;border-radius:12px;">';
+      } else {
+        document.getElementById('logo-topo-el').innerHTML = '<img src="/logo-booking.png" style="width:70px;height:70px;border-radius:12px;object-fit:cover;">';
+      }
 
       document.getElementById('label-timer-el').textContent = d.lTimer;
       document.getElementById('frase-el').textContent = d.frase;
