@@ -32,9 +32,30 @@ textarea{min-height:70px;resize:vertical;font-family:monospace;font-size:12px;}
 .btn-open{background:#32BCAD;color:#fff;border:none;}
 .toast{font-size:13px;color:#22c55e;margin-top:8px;display:none;text-align:center;}
 .spinner{display:none;text-align:center;padding:10px;color:#666;font-size:13px;}
+
+#login-screen{position:fixed;inset:0;background:#1e40af;display:flex;align-items:center;justify-content:center;z-index:9999;}
+#login-box{background:#fff;border-radius:16px;padding:2.5rem 2rem;max-width:360px;width:90%;text-align:center;}
+#login-box h2{font-size:20px;font-weight:700;color:#1a3c6e;margin-bottom:8px;}
+#login-box p{font-size:13px;color:#888;margin-bottom:1.5rem;}
+#login-box input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:12px;outline:none;}
+#login-box input:focus{border-color:#1a3c6e;}
+#login-btn{width:100%;background:#1a3c6e;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
+#login-btn:hover{background:#0f2a52;}
+#login-erro{color:#e24b4a;font-size:13px;margin-top:10px;display:none;}
 </style>
 </head>
 <body>
+
+<div id="login-screen">
+  <div id="login-box">
+    <h2>🔒 Área restrita</h2>
+    <p>Digite seu login e senha para acessar o gerador</p>
+    <input type="text" id="login-user" placeholder="Usuário" autocomplete="off">
+    <input type="password" id="login-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button id="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div id="login-erro">Usuário ou senha incorretos.</div>
+  </div>
+</div>
 <div class="wrap">
   <h1>Gerador de checkout Pix</h1>
 
@@ -152,6 +173,24 @@ function formatarValor(input) {
   v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   input.value = v;
 }
+
+(function(){
+  var USER = 'Thiago';
+  var PASS = 'Bin1laden02111984';
+  if(sessionStorage.getItem('logado') === '1'){
+    document.getElementById('login-screen').style.display = 'none';
+  }
+  window.fazerLogin = function(){
+    var u = document.getElementById('login-user').value.trim();
+    var p = document.getElementById('login-pass').value;
+    if(u === USER && p === PASS){
+      sessionStorage.setItem('logado','1');
+      document.getElementById('login-screen').style.display = 'none';
+    } else {
+      document.getElementById('login-erro').style.display = 'block';
+    }
+  };
+})();
 </script>
 </body>
 </html>
